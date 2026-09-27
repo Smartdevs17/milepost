@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { useContractRead, useContractResult, useProgramme, useTransaction, phaseLabel } from '../../hooks';
+import {
+  useAnnounceTransaction,
+  useContractRead,
+  useContractResult,
+  useProgramme,
+  useTransaction,
+  phaseLabel,
+} from '../../hooks';
 import { useWallet } from '../../context/useWallet';
 import { Button, Modal } from '../ui';
 import { ErrorPanel } from '../state/AsyncStates';
@@ -25,6 +32,22 @@ export function SeededProgrammeTools() {
   const cancelTx = useTransaction({ contract: 'program' });
   const pauseTx = useTransaction({ contract: 'program' });
   const [cancelOpen, setCancelOpen] = useState(false);
+  // Fixed when the write is sent: `paused` refetches on success, and a message
+  // read from it afterwards would announce the opposite of what happened.
+  const [pausing, setPausing] = useState(true);
+
+  useAnnounceTransaction({
+    phase: cancelTx.phase,
+    error: cancelTx.error,
+    pending: 'Cancelling the programme…',
+    success: 'Programme cancelled. Funders can now claim refunds.',
+  });
+  useAnnounceTransaction({
+    phase: pauseTx.phase,
+    error: pauseTx.error,
+    pending: pausing ? 'Pausing the programme…' : 'Resuming the programme…',
+    success: pausing ? 'Programme paused.' : 'Programme resumed.',
+  });
 
   const isCreator = Boolean(address && config.data && address === config.data.creator);
   const isCancelled = phase.data?.tag === 'Cancelled';
@@ -47,6 +70,7 @@ export function SeededProgrammeTools() {
   };
 
   const togglePause = async () => {
+    setPausing(!paused.data);
     const result = await pauseTx.send(async () => {
       const tx = paused.data ? await programme.unpause() : await programme.pause();
       return {

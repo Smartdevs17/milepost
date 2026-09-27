@@ -1,5 +1,5 @@
 import type { Policy } from '@milepost/policy-spend';
-import { useContractRead, useContractResult, useTransaction } from '../hooks';
+import { useAnnounceTransaction, useContractRead, useContractResult, useTransaction } from '../hooks';
 import { useSoroban } from '../context/useSoroban';
 import { useWallet } from '../context/useWallet';
 import { ErrorPanel, Loading, PendingState } from '../components/state/AsyncStates';
@@ -44,6 +44,12 @@ export const SpendPolicy = () => {
   const installTx = useTransaction<null>({
     contract: 'policy',
     onSuccess: () => installedRead.refetch(),
+  });
+  useAnnounceTransaction({
+    phase: installTx.phase,
+    error: installTx.error,
+    pending: 'Installing the policy signer…',
+    success: 'Policy signer installed.',
   });
 
   const loading = signedIn && (installedRead.loading || policyRead.loading);
@@ -193,7 +199,7 @@ export const SpendPolicy = () => {
             tranche.
           </p>
 
-          <p aria-live="polite" className="spend-policy__announce">
+          <p className="spend-policy__announce">
             {installTx.phase === 'success' ? 'Policy signer installed.' : ''}
           </p>
         </>

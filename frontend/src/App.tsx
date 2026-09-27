@@ -55,6 +55,9 @@ const AttestationLookup = lazy(() =>
 const RegisterSchema = lazy(() =>
   import("./pages/RegisterSchema").then((m) => ({ default: m.RegisterSchema })),
 );
+const Keepalive = lazy(() =>
+  import("./pages/Keepalive").then((m) => ({ default: m.Keepalive })),
+);
 const PayeeManagement = lazy(() =>
   import("./pages/PayeeManagement").then((m) => ({ default: m.PayeeManagement })),
 );
@@ -77,6 +80,7 @@ const ROUTE_ELEMENTS: Record<string, ReactElement> = {
   "/admin/standing": <AdminDashboard />,
   "/attestations": <AttestationLookup />,
   "/schemas/register": <RegisterSchema />,
+  "/keepalive": <Keepalive />,
   "/admin/payees": <PayeeManagement />,
 };
 
